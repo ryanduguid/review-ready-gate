@@ -10,6 +10,13 @@ from pathlib import Path
 from .engine import ReadinessPack
 from .models import Finding
 
+REVIEW_BOUNDARY = (
+    "This pack is a review aid. It does not approve a file, lodge a return, "
+    "or replace professional judgement."
+)
+
+PACK_FILE_NAMES = ("readiness-pack.json", "readiness-summary.md", "findings.csv")
+
 
 def _money(value) -> str:
     if value is None:
@@ -76,10 +83,7 @@ def _as_json(pack: ReadinessPack) -> dict:
         "overall_status": pack.status,
         "period_end": pack.period_end,
         "preparer_initials": pack.preparer_initials,
-        "review_boundary": (
-            "This pack is a review aid. It does not approve a file, lodge a return, "
-            "or replace professional judgement."
-        ),
+        "review_boundary": REVIEW_BOUNDARY,
         "source_sha256": {
             evidence.slot: {"filename": evidence.filename, "sha256": evidence.sha256}
             for evidence in pack.source_evidence
@@ -100,7 +104,7 @@ def _as_markdown(pack: ReadinessPack) -> str:
         "",
         f"**Overall status: {pack.status}**",
         "",
-        "This pack is a review aid. It does not approve a file, lodge a return, or replace professional judgement.",
+        REVIEW_BOUNDARY,
         "",
         "## Scope",
         "",
@@ -201,9 +205,6 @@ def _swap_into_place(staged_path: Path, destination: Path) -> Path | None:
             _restore_quietly(parked, destination)
         raise
     return parked
-
-
-PACK_FILE_NAMES = ("readiness-pack.json", "readiness-summary.md", "findings.csv")
 
 
 def write_review_pack(pack: ReadinessPack, output_dir: Path) -> dict[str, Path]:
