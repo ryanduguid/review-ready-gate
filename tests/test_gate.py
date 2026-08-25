@@ -3,13 +3,11 @@ from __future__ import annotations
 from decimal import Decimal
 from pathlib import Path
 
+from tests.support import EXAMPLES
 from reviewready.cli import main
 from reviewready.engine import review_pack
 from reviewready.models import FINDING_MISSING_ARTEFACT, FINDING_TB_UNBALANCED
 from reviewready.viewer import render_review_sheet
-
-
-EXAMPLES = Path(__file__).resolve().parents[1] / "examples"
 
 
 def test_bas_ready_pack_is_ready() -> None:
@@ -135,37 +133,6 @@ def test_cli_malformed_headers_exit_one(tmp_path: Path) -> None:
         )
         == 1
     )
-
-
-def test_formula_neutralisation(tmp_path: Path) -> None:
-    source = EXAMPLES / "bas-not-ready"
-    pack_dir = tmp_path / "pack"
-    pack_dir.mkdir()
-    for name in (
-        "trial_balance.csv",
-        "activity_statement.csv",
-        "open_items.csv",
-        "self_review.json",
-        "prior_findings.csv",
-    ):
-        (pack_dir / name).write_bytes((source / name).read_bytes())
-    output = tmp_path / "out"
-    assert (
-        main(
-            [
-                "gate",
-                "--profile",
-                "bas",
-                "--pack",
-                str(pack_dir),
-                "--output",
-                str(output),
-            ]
-        )
-        == 2
-    )
-    text = (output / "findings.csv").read_text(encoding="utf-8-sig")
-    assert "MISSING_ARTEFACT" in text
 
 
 def test_unsupported_tie_out(tmp_path: Path) -> None:

@@ -3,5 +3,6 @@ include README.md
 include SECURITY.md
 include CONTRIBUTING.md
 include DISCLAIMER.md
-recursive-include examples *
-recursive-include schemas *.csv
+include llms.txt
+recursive-include examples *.csv *.json *.yml *.md
+recursive-include schemas *.csv *.json

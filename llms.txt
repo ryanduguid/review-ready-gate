@@ -13,6 +13,7 @@
 - `reviewready.loader`: Validates input schemas and captures immutable byte snapshots with SHA-256 source digests.
 - `reviewready.report`: Writes JSON, Markdown, and CSV readiness-pack files.
 - `reviewready.cli`: `review-ready gate` and `review-ready view`.
+- `reviewready.viewer`: Fail-closed read of an existing pack. Duplicate JSON keys, disagreeing artefacts, or a missing review-boundary statement are exit `1`, not a displayed sheet.
 
 ## Architectural Boundaries
 1. **Gate, not review.** A `READY` pack may enter manager review. The tool does not decide that the work is correct.

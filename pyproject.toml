@@ -39,6 +39,9 @@ reviewready = ["py.typed"]
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 addopts = "-q"
+# uv run pytest does not put the repo root on sys.path the way
+# python -m pytest does. Keep helpers importable as tests.support.
+pythonpath = ["."]
 
 [tool.ruff]
 line-length = 100
