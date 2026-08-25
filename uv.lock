@@ -1,1 +1,4 @@
-PLACEHOLDER_WILL_REPLACE
+version = 1
+revision = 3
+requires-python = ">=3.10"
+# PLACEHOLDER - full lock follows in update
