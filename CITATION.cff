@@ -1,0 +1,11 @@
+cff-version: 1.2.0
+message: "If you use this software, cite the repository and exact release."
+title: "review-ready-gate"
+type: software
+version: 0.1.0
+authors:
+  - family-names: "Duguid"
+    given-names: "Ryan"
+repository-code: "https://github.com/ryanduguid/review-ready-gate"
+url: "https://ryanduguid.github.io/tools/review-ready-gate/"
+license: MIT

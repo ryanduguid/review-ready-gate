@@ -1,5 +1,12 @@
 from __future__ import annotations
 
+import sys
+
+if sys.version_info >= (3, 11):
+    import tomllib
+else:
+    import tomli as tomllib
+
 from tests.support import EXAMPLES, ROOT
 
 WORKFLOW = EXAMPLES / "github-actions-readiness-check.yml"
@@ -47,3 +54,44 @@ def test_readme_development_uses_the_locked_uv_entrypoint() -> None:
     assert "uv run pytest" in block
     assert "uv lock --check" in block
     assert "python -m pytest" not in block
+
+
+def test_citation_declares_the_first_release_identity() -> None:
+    citation = (ROOT / "CITATION.cff").read_text(encoding="utf-8")
+    assert 'title: "review-ready-gate"' in citation
+    assert "version: 0.1.0" in citation
+    assert 'family-names: "Duguid"' in citation
+    assert 'given-names: "Ryan"' in citation
+    assert "license: MIT" in citation
+    assert 'repository-code: "https://github.com/ryanduguid/review-ready-gate"' in citation
+
+
+def test_project_homepage_points_to_the_published_tool_page() -> None:
+    metadata = tomllib.loads((ROOT / "pyproject.toml").read_text(encoding="utf-8"))
+    assert metadata["project"]["urls"]["Homepage"] == (
+        "https://ryanduguid.github.io/tools/review-ready-gate/"
+    )
+
+
+def test_discovery_record_matches_the_approved_remote_metadata() -> None:
+    discovery = (ROOT / "docs" / "DISCOVERY.md").read_text(encoding="utf-8")
+    assert discovery == (
+        "# GitHub discovery metadata\n\n"
+        "Description: Stop incomplete workpapers reaching manager review. "
+        "Deterministic readiness gate for Australian public-practice packs. Not advice.\n\n"
+        "Homepage: https://ryanduguid.github.io/tools/review-ready-gate/\n\n"
+        "Topics:\n\n"
+        "- accounting\n"
+        "- accounting-controls\n"
+        "- australia\n"
+        "- bas\n"
+        "- cli\n"
+        "- month-end\n"
+        "- public-practice\n"
+        "- python\n"
+        "- quality-control\n"
+        "- review\n"
+        "- review-workflow\n"
+        "- workpapers\n"
+        "- year-end\n"
+    )
