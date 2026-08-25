@@ -201,14 +201,19 @@ Before displaying anything it fails closed on: a missing artefact; JSON that is 
 
 ## Development
 
+Use the locked toolchain. `python -m pytest` is not what CI runs.
+
 ```bash
-python -m pip install -e ".[dev]"
-pytest
-python -m build
+uv lock --check
+uv sync --locked --all-extras
+uv run pytest
+uv run ruff check reviewready tests
+uv run mypy reviewready
+uv build
 ```
 
 The test suite covers schema gates, the three fabricated engagement packs, empty and incomplete artefacts, GST and bank-rec breaks, unsupported tie-outs, acknowledgement parsing, deterministic pack generation, fail-closed pack viewing, and the command-line exit contract.
 
-Continuous integration verifies the committed `uv.lock`, runs the test suite on Python 3.10, 3.11, 3.12, and 3.13, then builds and smoke-tests the wheel with the fabricated demo. CodeQL scans the Python source, and Dependabot is configured to propose updates for `uv` dependencies and pinned GitHub Actions. See [CONTRIBUTING.md](CONTRIBUTING.md) for the local verification and data-handling requirements.
+Continuous integration verifies the committed `uv.lock`, runs the test suite on Python 3.10, 3.11, 3.12, and 3.13, then builds and smoke-tests the wheel with the fabricated demo. CodeQL scans the Python source, and Dependabot is configured to propose updates for `uv` dependencies and pinned GitHub Actions. See [CONTRIBUTING.md](CONTRIBUTING.md) for the local verification and data-handling requirements. To cut a release, follow [RELEASING.md](RELEASING.md). Do not tag until you intend to publish.
 
 MIT licensed. Boundary statement: [DISCLAIMER.md](DISCLAIMER.md).

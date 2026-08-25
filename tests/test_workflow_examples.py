@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from tests.support import EXAMPLES
+from tests.support import EXAMPLES, ROOT
 
 WORKFLOW = EXAMPLES / "github-actions-readiness-check.yml"
 
@@ -29,3 +29,21 @@ def test_copyable_workflow_is_scheduled_and_fail_closed_on_blocked() -> None:
     assert "READY still does not mean the file is approved" in text
     assert "fabricated or synthetic data" in text
     assert "Never commit a\n# client workpaper pack." in text
+
+
+def test_releasing_runbook_is_this_repo_and_does_not_tag_yet() -> None:
+    text = (ROOT / "RELEASING.md").read_text(encoding="utf-8")
+    assert "repos/ryanduguid/review-ready-gate/immutable-releases" in text
+    assert "Workflow filename | `release.yml`" in text
+    assert "Environment name | `pypi`" in text
+    assert "review_ready_gate-0.1.0-py3-none-any.whl" in text
+    assert "intend to publish." in text
+    assert "There is no PyPI project yet." in text
+
+
+def test_readme_development_uses_the_locked_uv_entrypoint() -> None:
+    development = (ROOT / "README.md").read_text(encoding="utf-8").split("## Development", 1)[1]
+    block = development.split("```bash", 1)[1].split("```", 1)[0]
+    assert "uv run pytest" in block
+    assert "uv lock --check" in block
+    assert "python -m pytest" not in block

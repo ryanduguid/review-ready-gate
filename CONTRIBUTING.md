@@ -42,3 +42,9 @@ acknowledgement as an approved file.
 
 For a potential security vulnerability, follow [SECURITY.md](SECURITY.md), and
 keep credentials, client data and exploit details out of the issue tracker.
+
+## Releasing
+
+Do not tag from a feature branch. Follow [RELEASING.md](RELEASING.md). There is
+no published PyPI project yet; complete the one-time `pypi` environment and
+trusted-publisher setup in that file before the first tag.
