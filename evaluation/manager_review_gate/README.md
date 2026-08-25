@@ -23,7 +23,7 @@ uv run pytest tests/test_evaluation_pack.py -q
 
 ## Expected findings
 
-The first command exits 2 with `MISSING_ARTEFACT` for `gst_control_gl`, `SELF_REVIEW_INCOMPLETE` and `OPEN_ITEM_BLOCKING`.
+The `bas-not-ready` gate command exits 2 with `MISSING_ARTEFACT` for `gst_control_gl`, `SELF_REVIEW_INCOMPLETE` and `OPEN_ITEM_BLOCKING`.
 
 ## Corrected pack
 
