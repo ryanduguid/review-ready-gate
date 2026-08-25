@@ -55,6 +55,8 @@ Most of what that manager then does is not judgement. It is reconstructing a pac
 
 The repository contains fabricated data only. Do not commit client workpapers.
 
+For the manager-facing, reproducible BAS evaluation, see the [manager review gate evaluation pack](evaluation/manager_review_gate/README.md).
+
 [`examples/`](examples/README.md) is the assault course: every move the tool has, run against
 fabricated data, with nothing at stake. Learn the flags here before pointing
 it at a real pack.
