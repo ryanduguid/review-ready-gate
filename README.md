@@ -53,6 +53,10 @@ Most of what that manager then does is not judgement. It is reconstructing a pac
 
 The repository contains fabricated data only. Do not commit client workpapers.
 
+[`examples/`](examples/README.md) is the assault course: every move the tool has, run against
+fabricated data, with nothing at stake. Learn the flags here before pointing
+it at a real pack.
+
 ```bash
 python -m pip install -e ".[dev]"
 
@@ -81,9 +85,10 @@ The not-ready demo exits `2`. The GST control export is missing, the preparer ha
 review-ready view --pack-dir outputs/bas-ready
 ```
 
-`view` re-reads the three files, proves they still agree, and prints the cover sheet with SHA-256 digests of the artefacts.
-
 Use exit code `0` only for `READY`, `2` for `NOT_READY` or `BLOCKED`, and `1` for a malformed file, an invalid command, or an `--output` path that cannot be written.
+
+To run the gate on a schedule in CI, copy [examples/github-actions-readiness-check.yml](examples/github-actions-readiness-check.yml) into `.github/workflows/`.
+It runs against a repo-stored synthetic pack, fails the job when the pack is `BLOCKED`, and reports `NOT_READY` for a human. A `READY` result is still not an approval.
 
 ## What gets gated
 
@@ -95,7 +100,7 @@ Use exit code `0` only for `READY`, `2` for `NOT_READY` or `BLOCKED`, and `1` fo
 
 Optional in every profile: `prior_findings.csv`. An OPEN prior finding that is still present is marked `repeat`.
 
-Filenames inside the pack directory are fixed. Header-only schema files live under `schemas/`.
+Filenames inside the pack directory are fixed. Header-only CSV schemas live under `schemas/`, together with the JSON Schema for `self_review.json`.
 
 ### Self-review
 
@@ -117,7 +122,7 @@ Filenames inside the pack directory are fixed. Header-only schema files live und
 }
 ```
 
-`engagement_type` must match `--profile`. `prepared_on` must not be earlier than `period_end`. Any assertion that is not `true` is `NOT_READY`. The assertions are necessary, not sufficient: a preparer who ticks `pack_complete` while the GST control file is missing still gets `MISSING_ARTEFACT`.
+`engagement_type` must match `--profile`. `prepared_on` must not be earlier than `period_end`. Any assertion that is not `true` is `NOT_READY`. The assertions are necessary, not sufficient: a preparer who ticks `pack_complete` while the GST control file is missing still gets `MISSING_ARTEFACT`. The JSON Schema is [schemas/self_review.json](schemas/self_review.json).
 
 ### Open items
 
@@ -161,6 +166,16 @@ Optional `--review-note` JSON:
 
 `reviewed_on` must not be earlier than `period_end`. An acknowledgement is evidence of a human action only. It **never** changes `NOT_READY` or `BLOCKED` to `READY`.
 
+## Viewing an existing pack
+
+`review-ready view` is the read-only half of the gate: it loads a generated pack, proves the three files still agree with each other, and prints the cover sheet. It never writes, renames or deletes anything, and it cannot change what the engine computed.
+
+```bash
+review-ready view --pack-dir outputs/bas-ready
+```
+
+Before displaying anything it fails closed on: a missing artefact; JSON that is not valid UTF-8, not valid JSON, or carries unknown, missing or duplicated top-level members; a threshold or nested source digest that no longer parses as the writer rendered it; a `readiness-summary.md` whose overall status, source-evidence digests or review-boundary statement disagree with the JSON (including a second, conflicting status line); and a `findings.csv` whose header, row count or any cell disagrees with the JSON findings, honouring the writer's formula-injection guard exactly. On success the sheet ends with the SHA-256 of each artefact's exact bytes, so the displayed evidence can itself be archived. Exit code is 0 when a pack was verified and shown, 1 when verification failed.
+
 ## Design
 
 - Exact `Decimal` arithmetic for money, never binary floating point.
@@ -174,7 +189,7 @@ Optional `--review-note` JSON:
 ## Data boundary
 
 - Use a separate, access-controlled working directory for client source files and outputs.
-- Keep this checkout limited to fabricated fixtures.
+- Keep this checkout limited to fabricated fixtures. Its `.gitignore` blocks CSVs outside `examples/` and `schemas/`, and blocks all three generated pack files by name wherever `--output` points them, including inside those two fixture directories.
 - Do not use this as tax, financial, audit, or legal advice.
 
 ## Related
@@ -192,6 +207,8 @@ pytest
 python -m build
 ```
 
-The test suite covers the three fabricated engagement packs, GST and bank-rec breaks, unsupported tie-outs, CLI exit codes, and pack viewing.
+The test suite covers schema gates, the three fabricated engagement packs, empty and incomplete artefacts, GST and bank-rec breaks, unsupported tie-outs, acknowledgement parsing, deterministic pack generation, fail-closed pack viewing, and the command-line exit contract.
+
+Continuous integration verifies the committed `uv.lock`, runs the test suite on Python 3.10, 3.11, 3.12, and 3.13, then builds and smoke-tests the wheel with the fabricated demo. CodeQL scans the Python source, and Dependabot is configured to propose updates for `uv` dependencies and pinned GitHub Actions. See [CONTRIBUTING.md](CONTRIBUTING.md) for the local verification and data-handling requirements.
 
 MIT licensed. Boundary statement: [DISCLAIMER.md](DISCLAIMER.md).
