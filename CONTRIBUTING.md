@@ -9,9 +9,9 @@ returns, lock periods, send reports, or approve a file.
 - Use fabricated fixtures. Keep client trial balances, subledgers, workpapers,
   readiness packs, credentials, `.env` files, tokens and screenshots from a live
   accounting system out of the repository.
-- Put fabricated CSV fixtures under `examples/` and header-only schema references
-  under `schemas/`. The `.gitignore` blocks ordinary CSV files outside those
-  directories.
+- Put fabricated CSV fixtures under `examples/` and schema references
+  (header-only CSVs, plus `self_review.json`) under `schemas/`. The `.gitignore`
+  blocks ordinary CSV files outside those directories.
 - Treat source CSV content and review notes as untrusted input. Keep the
   fail-closed validation and the spreadsheet-formula safeguards in place.
 
@@ -23,8 +23,12 @@ Python 3.10 or newer. The repository uses `uv` and commits its lock file.
 uv lock --check
 uv sync --locked --all-extras
 uv run pytest
+uv run ruff check reviewready tests
+uv run mypy reviewready
 uv build
 ```
+
+CI also runs those checks on 3.10–3.13, plus CodeQL on the Python source. Do not expand the ruff rule set; it is `E9`/`F82` only, matching monthly-close-control-plane.
 
 For a behaviour change, add or update a focused test under `tests/`. Keep the
 output deterministic: no wall-clock timestamps, client identifiers or hidden
