@@ -1,0 +1,23 @@
+# Never commit a client's ledger export, workpaper, credentials, or generated readiness pack.
+*.csv
+!examples/**/*.csv
+!schemas/*.csv
+outputs/
+
+readiness-pack.json
+readiness-summary.md
+findings.csv
+*.partial
+.env
+.env.*
+!.env.example
+*.token
+*.tokens
+*.pem
+__pycache__/
+.pytest_cache/
+.venv/
+build/
+dist/
+*.egg-info/
+.mypy_cache/
