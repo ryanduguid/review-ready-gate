@@ -19,7 +19,8 @@ classifiers = [
   "Topic :: Office/Business :: Financial :: Accounting",
 ]
 [project.urls]
-Homepage = "https://github.com/ryanduguid/review-ready-gate"
+Homepage = "https://ryanduguid.github.io/tools/review-ready-gate/"
+Documentation = "https://github.com/ryanduguid/review-ready-gate/tree/main/evaluation/manager_review_gate"
 Repository = "https://github.com/ryanduguid/review-ready-gate.git"
 Issues = "https://github.com/ryanduguid/review-ready-gate/issues"
 
