@@ -45,6 +45,6 @@ keep credentials, client data and exploit details out of the issue tracker.
 
 ## Releasing
 
-Do not tag from a feature branch. Follow [RELEASING.md](RELEASING.md). There is
-no published PyPI project yet; complete the one-time `pypi` environment and
-trusted-publisher setup in that file before the first tag.
+Do not tag from a feature branch. Follow [RELEASING.md](RELEASING.md). For a
+first PyPI publication, complete the one-time `pypi` environment and
+trusted-publisher setup in that file before tagging.
