@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "review-ready-gate"
-version = "0.1.1"
+version = "0.1.2"
 description = "Stop incomplete workpapers reaching manager review"
 readme = "README.md"
 requires-python = ">=3.10"
@@ -20,7 +20,7 @@ classifiers = [
 ]
 [project.urls]
 Homepage = "https://ryanduguid.github.io/tools/review-ready-gate/"
-Documentation = "https://github.com/ryanduguid/review-ready-gate/tree/main/evaluation/manager_review_gate"
+Documentation = "https://github.com/ryanduguid/review-ready-gate/tree/v0.1.2/evaluation/manager_review_gate"
 Repository = "https://github.com/ryanduguid/review-ready-gate.git"
 Issues = "https://github.com/ryanduguid/review-ready-gate/issues"
 

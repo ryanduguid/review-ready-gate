@@ -44,9 +44,10 @@ def test_release_guidance_is_repo_specific_and_durable() -> None:
     assert "repos/ryanduguid/review-ready-gate/immutable-releases" in text
     assert "Workflow filename | `release.yml`" in text
     assert "Environment name | `pypi`" in text
-    assert "review_ready_gate-0.1.1-py3-none-any.whl" in text
+    assert "review_ready_gate-0.1.2-py3-none-any.whl" in text
     assert "intend to publish." in text
-    assert "This recovery release uses version `0.1.1`." in normalised
+    assert "This release uses version `0.1.2`." in normalised
+    assert "published `v0.1.1` recovery" in normalised
     assert "intended to be" not in text
 
     contributing = " ".join(
@@ -59,9 +60,13 @@ def test_release_guidance_is_repo_specific_and_durable() -> None:
     assert "no published PyPI project yet" not in contributing
 
 
-def test_failed_release_tag_is_not_reused() -> None:
+def test_current_release_metadata_uses_immutable_documentation() -> None:
     metadata = tomllib.loads((ROOT / "pyproject.toml").read_text(encoding="utf-8"))
-    assert metadata["project"]["version"] == "0.1.1"
+    assert metadata["project"]["version"] == "0.1.2"
+    assert metadata["project"]["urls"]["Documentation"] == (
+        "https://github.com/ryanduguid/review-ready-gate/tree/v0.1.2/"
+        "evaluation/manager_review_gate"
+    )
 
 
 def test_release_notes_heading_matches_release_policy_tag() -> None:
@@ -78,10 +83,10 @@ def test_readme_development_uses_the_locked_uv_entrypoint() -> None:
     assert "python -m pytest" not in block
 
 
-def test_citation_declares_the_first_release_identity() -> None:
+def test_citation_declares_the_current_release_identity() -> None:
     citation = (ROOT / "CITATION.cff").read_text(encoding="utf-8")
     assert 'title: "review-ready-gate"' in citation
-    assert "version: 0.1.1" in citation
+    assert "version: 0.1.2" in citation
     assert 'family-names: "Duguid"' in citation
     assert 'given-names: "Ryan"' in citation
     assert "license: MIT" in citation
@@ -93,6 +98,34 @@ def test_project_homepage_points_to_the_published_tool_page() -> None:
     assert metadata["project"]["urls"]["Homepage"] == (
         "https://ryanduguid.github.io/tools/review-ready-gate/"
     )
+
+
+def test_release_attestation_commands_identify_the_signing_repository() -> None:
+    text = (ROOT / "RELEASING.md").read_text(encoding="utf-8")
+    attestation_commands = []
+    for bash_block in text.split("```bash")[1:]:
+        lines = iter(bash_block.split("```", 1)[0].splitlines())
+        for line in lines:
+            if not line.startswith("gh attestation verify "):
+                continue
+
+            command_lines = [line]
+            while command_lines[-1].endswith("\\"):
+                continuation = next(lines, None)
+                assert continuation is not None
+                command_lines.append(continuation)
+            attestation_commands.append("\n".join(command_lines))
+
+    assert len(attestation_commands) == 2
+    for command in attestation_commands:
+        assert command.count("--signer-repo ryanduguid/release-policy") == 1
+        assert command.count("-R ryanduguid/review-ready-gate") == 1
+
+    predicate_counts = [
+        command.count("--predicate-type https://spdx.dev/Document/v2.3")
+        for command in attestation_commands
+    ]
+    assert sorted(predicate_counts) == [0, 1]
 
 
 def test_discovery_record_matches_the_approved_remote_metadata() -> None:
