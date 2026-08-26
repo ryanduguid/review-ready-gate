@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "product_release": "0.1.1",
+  "product_release": "0.1.2",
   "fixture_version": "1",
   "source_reviewed": "2026-08-26",
   "sources": [
@@ -35,5 +35,5 @@
       "expected_findings": []
     }
   ],
-  "human_decision": "READY means no configured gate tripped; it is not approval, advice or lodgment authority."
+  "human_decision": "READY means no configured gate tripped; it is not approval, not a tax or BAS agent service, not advice and not lodgment authority. A human remains accountable for professional judgement, approval, client impact and lodgment decisions."
 }
