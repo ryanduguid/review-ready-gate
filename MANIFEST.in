@@ -1,4 +1,5 @@
 include LICENSE
+include CITATION.cff
 include README.md
 include SECURITY.md
 include CONTRIBUTING.md
@@ -6,3 +7,4 @@ include DISCLAIMER.md
 include llms.txt
 recursive-include examples *.csv *.json *.yml *.md
 recursive-include schemas *.csv *.json
+recursive-include evaluation *.md *.json

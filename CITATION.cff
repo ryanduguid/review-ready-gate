@@ -2,7 +2,7 @@ cff-version: 1.2.0
 message: "If you use this software, cite the repository and exact release."
 title: "review-ready-gate"
 type: software
-version: 0.1.1
+version: 0.1.2
 authors:
   - family-names: "Duguid"
     given-names: "Ryan"
