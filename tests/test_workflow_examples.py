@@ -102,9 +102,30 @@ def test_project_homepage_points_to_the_published_tool_page() -> None:
 
 def test_release_attestation_commands_identify_the_signing_repository() -> None:
     text = (ROOT / "RELEASING.md").read_text(encoding="utf-8")
-    assert text.count("--signer-repo ryanduguid/release-policy") == 2
-    assert text.count("-R ryanduguid/review-ready-gate") >= 2
-    assert "--predicate-type https://spdx.dev/Document/v2.3" in text
+    attestation_commands = []
+    for bash_block in text.split("```bash")[1:]:
+        lines = iter(bash_block.split("```", 1)[0].splitlines())
+        for line in lines:
+            if not line.startswith("gh attestation verify "):
+                continue
+
+            command_lines = [line]
+            while command_lines[-1].endswith("\\"):
+                continuation = next(lines, None)
+                assert continuation is not None
+                command_lines.append(continuation)
+            attestation_commands.append("\n".join(command_lines))
+
+    assert len(attestation_commands) == 2
+    for command in attestation_commands:
+        assert command.count("--signer-repo ryanduguid/release-policy") == 1
+        assert command.count("-R ryanduguid/review-ready-gate") == 1
+
+    predicate_counts = [
+        command.count("--predicate-type https://spdx.dev/Document/v2.3")
+        for command in attestation_commands
+    ]
+    assert sorted(predicate_counts) == [0, 1]
 
 
 def test_discovery_record_matches_the_approved_remote_metadata() -> None:
