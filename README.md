@@ -22,7 +22,7 @@
 
 A local, **review-first readiness gate** for Australian public-practice packs. You point it at a folder of workpapers from a junior, an offshore team, or an AI agent. It tells you whether that folder is allowed to enter manager review.
 
-**Status: incubating.** It is a local review aid, not an approval system.
+A public evaluation pack reproduces the v0.1.1 manager-review result on fabricated BAS fixtures. It is a local review aid, not an approval system.
 
 ### Fabricated proof
 
