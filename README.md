@@ -18,9 +18,20 @@
 [![Python 3.10+](https://img.shields.io/badge/python-3.10%2B-5C2D91.svg?logo=python&logoColor=white&labelColor=04001F)](https://www.python.org/downloads/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-4F485E.svg?labelColor=04001F)](LICENSE)
 
+[Browser evaluation](https://ryanduguid.github.io/evaluate/manager-review-gate/) · [Reproduce locally](evaluation/manager_review_gate/README.md) · [Quick demo](#quick-demo) · [Release notes](RELEASE_NOTES.md)
+
 A local, **review-first readiness gate** for Australian public-practice packs. You point it at a folder of workpapers from a junior, an offshore team, or an AI agent. It tells you whether that folder is allowed to enter manager review.
 
 A public evaluation pack reproduces the v0.1.1 manager-review result on fabricated BAS fixtures. It is a local review aid, not an approval system.
+
+### Fabricated proof
+
+| Pack | Result | What the gate reports |
+| --- | --- | --- |
+| `examples/bas-ready` | `READY` | No configured findings. A human still decides whether the pack may proceed. |
+| `examples/bas-not-ready` | `NOT_READY` | Missing GST control export, incomplete self-review and a blocking open item. |
+
+Open the [manager-facing browser evaluation](https://ryanduguid.github.io/evaluate/manager-review-gate/) or reproduce the [versioned evaluation pack](evaluation/manager_review_gate/README.md) from the fabricated fixtures.
 
 It is the missing upstream step in this stack:
 
