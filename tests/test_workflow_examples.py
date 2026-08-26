@@ -38,14 +38,25 @@ def test_copyable_workflow_is_scheduled_and_fail_closed_on_blocked() -> None:
     assert "Never commit a\n# client workpaper pack." in text
 
 
-def test_releasing_runbook_is_this_repo_and_does_not_tag_yet() -> None:
+def test_release_guidance_is_repo_specific_and_durable() -> None:
     text = (ROOT / "RELEASING.md").read_text(encoding="utf-8")
+    normalised = " ".join(text.split())
     assert "repos/ryanduguid/review-ready-gate/immutable-releases" in text
     assert "Workflow filename | `release.yml`" in text
     assert "Environment name | `pypi`" in text
     assert "review_ready_gate-0.1.1-py3-none-any.whl" in text
     assert "intend to publish." in text
-    assert "The first successful workflow creates the PyPI project." in text
+    assert "This recovery release uses version `0.1.1`." in normalised
+    assert "intended to be" not in text
+
+    contributing = " ".join(
+        (ROOT / "CONTRIBUTING.md").read_text(encoding="utf-8").split()
+    )
+    assert (
+        "For a first PyPI publication, complete the one-time `pypi` environment "
+        "and trusted-publisher setup in that file before tagging."
+    ) in contributing
+    assert "no published PyPI project yet" not in contributing
 
 
 def test_failed_release_tag_is_not_reused() -> None:

@@ -5,11 +5,10 @@ commit. Do not build or upload package assets by hand. Do not tag until you
 intend to publish. A `READY` result from this tool is not a reason to release,
 and a release is not an approval of any client file.
 
-The first published version is intended to be `0.1.1`. The protected `v0.1.0`
-tag failed its release-notes-header gate before any GitHub Release, asset or
-PyPI project was created. Never move or reuse that tag. Before the first
-successful workflow, no PyPI project exists.
-The first successful workflow creates the PyPI project.
+This recovery release uses version `0.1.1`. The protected `v0.1.0` tag failed
+its release-notes-header gate before any GitHub Release, asset or PyPI project
+was created. Never move or reuse that tag. Before a successful first PyPI
+publication, no project exists; that workflow creates it.
 
 ## One-time setup before the first tag
 
