@@ -151,7 +151,7 @@ One tenant, one report date, unique `Tenant`+`AccountID`. Movement debit must eq
 If both the activity statement and the GST control GL are present:
 
 - labels `1A` and `1B` are required
-- `1A - 1B` is compared with GST-control `sum(Credit) - `sum(Debit)`
+- `1A - 1B` is compared with GST-control `sum(Credit) - sum(Debit)`
 - a difference beyond `--tieout-tolerance` (default `$0.01`) is `NOT_READY`
 
 This is a cash-style control-account tie-out on the files you supply. It is not a lodgment, not a cash-versus-accruals bridge, and not a substitute for the `bas-preparation` skill.
