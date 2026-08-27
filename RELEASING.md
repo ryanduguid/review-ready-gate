@@ -62,20 +62,28 @@ existing release is never overwritten.
 Verify the downloaded release with:
 
 ```bash
-gh release download v0.1.2 -R ryanduguid/workpaper-review-gate --dir release-v0.1.2
-cd release-v0.1.2
+tag=v0.1.2
+repo=ryanduguid/workpaper-review-gate
+wheel="review_ready_gate-${tag#v}-py3-none-any.whl"
+release_commit="$(git ls-remote "https://github.com/$repo.git" "refs/tags/$tag^{}" | cut -f1)"
+test -n "$release_commit"
+gh release download "$tag" -R "$repo" --dir "release-$tag"
+cd "release-$tag"
 sha256sum --check SHA256SUMS
-gh attestation verify review_ready_gate-0.1.2-py3-none-any.whl \
-  -R ryanduguid/workpaper-review-gate \
-  --signer-repo ryanduguid/release-policy
-gh attestation verify review_ready_gate-0.1.2-py3-none-any.whl \
-  -R ryanduguid/workpaper-review-gate \
-  --signer-repo ryanduguid/release-policy \
-  --predicate-type https://spdx.dev/Document/v2.3
-gh release view v0.1.2 -R ryanduguid/workpaper-review-gate --json isImmutable
-gh release verify v0.1.2 -R ryanduguid/workpaper-review-gate
-gh release verify-asset v0.1.2 review_ready_gate-0.1.2-py3-none-any.whl \
-  -R ryanduguid/workpaper-review-gate
+gh attestation verify "$wheel" -R "$repo" \
+  --source-digest "$release_commit" \
+  --source-ref "refs/tags/$tag" \
+  --signer-workflow ryanduguid/release-policy/.github/workflows/release-python.yml \
+  --signer-digest 8b4de1ed339f1358b5f3e850b63412d8717d01da
+gh attestation verify "$wheel" -R "$repo" \
+  --predicate-type https://spdx.dev/Document/v2.3 \
+  --source-digest "$release_commit" \
+  --source-ref "refs/tags/$tag" \
+  --signer-workflow ryanduguid/release-policy/.github/workflows/release-python.yml \
+  --signer-digest 8b4de1ed339f1358b5f3e850b63412d8717d01da
+gh release view "$tag" -R "$repo" --json isImmutable
+gh release verify "$tag" -R "$repo"
+gh release verify-asset "$tag" "$wheel" -R "$repo"
 ```
 
 If any gate fails, inspect it before touching the tag or draft. Never move a
