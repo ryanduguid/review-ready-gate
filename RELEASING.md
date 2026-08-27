@@ -1,5 +1,7 @@
 # Releasing
 
+The repository's [GitHub Releases](https://github.com/ryanduguid/workpaper-review-gate/releases) page is the canonical release history. A separate changelog is intentionally not maintained.
+
 Releases are built by GitHub Actions from an annotated tag on the exact `main`
 commit. Do not build or upload package assets by hand. Do not tag until you
 intend to publish. A `READY` result from this tool is not a reason to release,
