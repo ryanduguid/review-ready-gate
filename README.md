@@ -1,8 +1,8 @@
-# review-ready-gate
+# Workpaper Review Gate
 
 ```
 +----------------------------------------------------------------------+
-|                         review-ready-gate                            |
+|                        Workpaper Review Gate                         |
 +----------------------------------------------------------------------+
 |     Stop incomplete workpapers reaching manager review               |
 +----------------------------------+-----------------------------------+
@@ -14,11 +14,13 @@
 +----------------------------------+-----------------------------------+
 ```
 
-[![tests](https://github.com/ryanduguid/review-ready-gate/actions/workflows/ci.yml/badge.svg)](https://github.com/ryanduguid/review-ready-gate/actions/workflows/ci.yml)
+[![tests](https://github.com/ryanduguid/workpaper-review-gate/actions/workflows/ci.yml/badge.svg)](https://github.com/ryanduguid/workpaper-review-gate/actions/workflows/ci.yml)
 [![Python 3.10+](https://img.shields.io/badge/python-3.10%2B-5C2D91.svg?logo=python&logoColor=white&labelColor=04001F)](https://www.python.org/downloads/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-4F485E.svg?labelColor=04001F)](LICENSE)
 
 [Browser evaluation](https://ryanduguid.github.io/evaluate/manager-review-gate/) · [Reproduce locally](evaluation/manager_review_gate/README.md) · [Quick demo](#quick-demo) · [Release notes](RELEASE_NOTES.md)
+
+The repository is Workpaper Review Gate (`workpaper-review-gate`); the `review-ready-gate` distribution, `review-ready` command and `reviewready` import remain compatibility identifiers.
 
 A local, **review-first readiness gate** for Australian public-practice packs. You point it at a folder of workpapers from a junior, an offshore team, or an AI agent. It tells you whether that folder is allowed to enter manager review.
 
@@ -39,17 +41,17 @@ It is the missing upstream step in this stack:
 Incomplete pack
       |
       v
-review-ready-gate   <-- this repository
+workpaper-review-gate   <-- this repository
       |
       |  READY
       v
 Manager review (judgement, risk, client impact)
       |
       v
-monthly-close-control-plane / payday-super-checker / other engines
+Monthly Close Controls / payday-super-checker / other engines
 ```
 
-[monthly-close-control-plane](https://github.com/ryanduguid/monthly-close-control-plane) answers "what material exceptions exist on these trial balances?". This tool answers a prior question: **"is the pack even allowed onto the review desk?"** A file can have material variances and still be READY, because the variances are documented. A file with a missing GST control export is NOT_READY even if the numbers look tidy.
+[Monthly Close Controls](https://github.com/ryanduguid/monthly-close-controls) answers "what material exceptions exist on these trial balances?". This tool answers a prior question: **"is the pack even allowed onto the review desk?"** A file can have material variances and still be READY, because the variances are documented. A file with a missing GST control export is NOT_READY even if the numbers look tidy.
 
 It does **not** connect to Xero, store OAuth tokens, write journals, lodge BAS, lock a period, call an LLM, or claim that a file is correct.
 
@@ -209,10 +211,10 @@ Before displaying anything it fails closed on: a missing artefact; JSON that is 
 
 ## Related
 
-- [monthly-close-control-plane](https://github.com/ryanduguid/monthly-close-control-plane) — exception pack once a trial balance is allowed onto the review desk
-- [xero-ai-review-gateway](https://github.com/ryanduguid/xero-ai-review-gateway) — zero-network variance boundary for AI-assisted TB review
-- [australian-accounting-skills](https://github.com/ryanduguid/australian-accounting-skills) — `workpaper-tie-out` and `bas-preparation` workflows this gate enforces mechanically
-- [DrDebits](https://github.com/ryanduguid/DrDebits) — APES 110 / TPB guardrails for any LLM sitting *after* a READY pack
+- [Monthly Close Controls](https://github.com/ryanduguid/monthly-close-controls) - exception pack once a trial balance is allowed onto the review desk
+- [Xero Ledger Review Gate](https://github.com/ryanduguid/xero-ledger-review-gate) - zero-network variance boundary for AI-assisted TB review
+- [australian-accounting-skills](https://github.com/ryanduguid/australian-accounting-skills) - `workpaper-tie-out` and `bas-preparation` workflows this gate enforces mechanically
+- [DrDebits](https://github.com/ryanduguid/DrDebits) - APES 110 / TPB guardrails for any LLM sitting *after* a READY pack
 
 ## Development
 

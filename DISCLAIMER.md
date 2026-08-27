@@ -1,6 +1,6 @@
 # Disclaimer
 
-review-ready-gate inspects a workpaper pack directory and writes a readiness
+Workpaper Review Gate inspects a workpaper pack directory and writes a readiness
 pack for human review. It is not tax, legal, accounting, financial, investment,
 BAS-agent, registered-tax-agent, or assurance advice, and it is not an audit
 or a review engagement.

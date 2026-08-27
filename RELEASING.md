@@ -13,7 +13,7 @@ historical and must not be moved or reused.
 ## One-time setup before the first tag
 
 1. Create the GitHub Actions environment `pypi` on
-   `ryanduguid/review-ready-gate` (Settings → Environments). Set its URL to
+   `ryanduguid/workpaper-review-gate` (Settings → Environments). Set its URL to
    `https://pypi.org/p/review-ready-gate`.
 2. Register a PyPI trusted publisher (Account → Publishing → "Add a new
    pending publisher" while the project does not exist) with exactly these
@@ -23,7 +23,7 @@ historical and must not be moved or reused.
 | --- | --- |
 | PyPI project name | `review-ready-gate` |
 | Owner | `ryanduguid` |
-| Repository name | `review-ready-gate` |
+| Repository name | `workpaper-review-gate` |
 | Workflow filename | `release.yml` |
 | Environment name | `pypi` |
 
@@ -40,7 +40,7 @@ published. Once the publisher exists, backfill with `workflow_dispatch` on
 
     ```bash
     gh api -H "X-GitHub-Api-Version: 2026-03-10" \
-      repos/ryanduguid/review-ready-gate/immutable-releases --jq .enabled
+      repos/ryanduguid/workpaper-review-gate/immutable-releases --jq .enabled
     ```
 
     Do not push the tag unless the output is exactly `true`. The Actions
@@ -60,20 +60,20 @@ existing release is never overwritten.
 Verify the downloaded release with:
 
 ```bash
-gh release download v0.1.2 -R ryanduguid/review-ready-gate --dir release-v0.1.2
+gh release download v0.1.2 -R ryanduguid/workpaper-review-gate --dir release-v0.1.2
 cd release-v0.1.2
 sha256sum --check SHA256SUMS
 gh attestation verify review_ready_gate-0.1.2-py3-none-any.whl \
-  -R ryanduguid/review-ready-gate \
+  -R ryanduguid/workpaper-review-gate \
   --signer-repo ryanduguid/release-policy
 gh attestation verify review_ready_gate-0.1.2-py3-none-any.whl \
-  -R ryanduguid/review-ready-gate \
+  -R ryanduguid/workpaper-review-gate \
   --signer-repo ryanduguid/release-policy \
   --predicate-type https://spdx.dev/Document/v2.3
-gh release view v0.1.2 -R ryanduguid/review-ready-gate --json isImmutable
-gh release verify v0.1.2 -R ryanduguid/review-ready-gate
+gh release view v0.1.2 -R ryanduguid/workpaper-review-gate --json isImmutable
+gh release verify v0.1.2 -R ryanduguid/workpaper-review-gate
 gh release verify-asset v0.1.2 review_ready_gate-0.1.2-py3-none-any.whl \
-  -R ryanduguid/review-ready-gate
+  -R ryanduguid/workpaper-review-gate
 ```
 
 If any gate fails, inspect it before touching the tag or draft. Never move a
