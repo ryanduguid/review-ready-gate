@@ -10,6 +10,10 @@ else:
 from tests.support import EXAMPLES, ROOT
 
 WORKFLOW = EXAMPLES / "github-actions-readiness-check.yml"
+REPOSITORY_NAME = "workpaper-review-gate"
+PACKAGE_NAME = "review-ready-gate"
+REPOSITORY_URL = f"https://github.com/ryanduguid/{REPOSITORY_NAME}"
+HOMEPAGE_URL = "https://ryanduguid.github.io/tools/workpaper-review-gate/"
 
 EXPECTED_PINS = (
     "actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1",
@@ -41,7 +45,7 @@ def test_copyable_workflow_is_scheduled_and_fail_closed_on_blocked() -> None:
 def test_release_guidance_is_repo_specific_and_durable() -> None:
     text = (ROOT / "RELEASING.md").read_text(encoding="utf-8")
     normalised = " ".join(text.split())
-    assert "repos/ryanduguid/review-ready-gate/immutable-releases" in text
+    assert f"repos/ryanduguid/{REPOSITORY_NAME}/immutable-releases" in text
     assert "Workflow filename | `release.yml`" in text
     assert "Environment name | `pypi`" in text
     assert "review_ready_gate-0.1.2-py3-none-any.whl" in text
@@ -64,7 +68,7 @@ def test_current_release_metadata_uses_immutable_documentation() -> None:
     metadata = tomllib.loads((ROOT / "pyproject.toml").read_text(encoding="utf-8"))
     assert metadata["project"]["version"] == "0.1.2"
     assert metadata["project"]["urls"]["Documentation"] == (
-        "https://github.com/ryanduguid/review-ready-gate/tree/v0.1.2/"
+        f"{REPOSITORY_URL}/tree/v0.1.2/"
         "evaluation/manager_review_gate"
     )
 
@@ -85,19 +89,21 @@ def test_readme_development_uses_the_locked_uv_entrypoint() -> None:
 
 def test_citation_declares_the_current_release_identity() -> None:
     citation = (ROOT / "CITATION.cff").read_text(encoding="utf-8")
-    assert 'title: "review-ready-gate"' in citation
+    assert 'title: "Workpaper Review Gate"' in citation
     assert "version: 0.1.2" in citation
     assert 'family-names: "Duguid"' in citation
     assert 'given-names: "Ryan"' in citation
     assert "license: MIT" in citation
-    assert 'repository-code: "https://github.com/ryanduguid/review-ready-gate"' in citation
+    assert f'repository-code: "{REPOSITORY_URL}"' in citation
 
 
-def test_project_homepage_points_to_the_published_tool_page() -> None:
+def test_project_identity_preserves_package_and_command_compatibility() -> None:
     metadata = tomllib.loads((ROOT / "pyproject.toml").read_text(encoding="utf-8"))
-    assert metadata["project"]["urls"]["Homepage"] == (
-        "https://ryanduguid.github.io/tools/review-ready-gate/"
-    )
+
+    assert metadata["project"]["name"] == PACKAGE_NAME
+    assert metadata["project"]["scripts"]["review-ready"] == "reviewready.cli:main"
+    assert metadata["project"]["urls"]["Homepage"] == HOMEPAGE_URL
+    assert metadata["project"]["urls"]["Repository"] == f"{REPOSITORY_URL}.git"
 
 
 def test_release_attestation_commands_identify_the_signing_repository() -> None:
@@ -119,7 +125,7 @@ def test_release_attestation_commands_identify_the_signing_repository() -> None:
     assert len(attestation_commands) == 2
     for command in attestation_commands:
         assert command.count("--signer-repo ryanduguid/release-policy") == 1
-        assert command.count("-R ryanduguid/review-ready-gate") == 1
+        assert command.count(f"-R ryanduguid/{REPOSITORY_NAME}") == 1
 
     predicate_counts = [
         command.count("--predicate-type https://spdx.dev/Document/v2.3")
@@ -134,7 +140,7 @@ def test_discovery_record_matches_the_approved_remote_metadata() -> None:
         "# GitHub discovery metadata\n\n"
         "Description: Stop incomplete workpapers reaching manager review. "
         "Deterministic readiness gate for Australian public-practice packs. Not advice.\n\n"
-        "Homepage: https://ryanduguid.github.io/tools/review-ready-gate/\n\n"
+        f"Homepage: {HOMEPAGE_URL}\n\n"
         "Topics:\n\n"
         "- accounting\n"
         "- accounting-controls\n"
@@ -147,6 +153,7 @@ def test_discovery_record_matches_the_approved_remote_metadata() -> None:
         "- quality-control\n"
         "- review\n"
         "- review-workflow\n"
+        "- workpaper-review\n"
         "- workpapers\n"
         "- year-end\n"
     )

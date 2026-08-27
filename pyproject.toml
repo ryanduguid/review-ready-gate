@@ -19,10 +19,10 @@ classifiers = [
   "Topic :: Office/Business :: Financial :: Accounting",
 ]
 [project.urls]
-Homepage = "https://ryanduguid.github.io/tools/review-ready-gate/"
-Documentation = "https://github.com/ryanduguid/review-ready-gate/tree/v0.1.2/evaluation/manager_review_gate"
-Repository = "https://github.com/ryanduguid/review-ready-gate.git"
-Issues = "https://github.com/ryanduguid/review-ready-gate/issues"
+Homepage = "https://ryanduguid.github.io/tools/workpaper-review-gate/"
+Documentation = "https://github.com/ryanduguid/workpaper-review-gate/tree/v0.1.2/evaluation/manager_review_gate"
+Repository = "https://github.com/ryanduguid/workpaper-review-gate.git"
+Issues = "https://github.com/ryanduguid/workpaper-review-gate/issues"
 
 [project.optional-dependencies]
 dev = [
