@@ -384,25 +384,26 @@ def _verify_scope_block(document: dict[str, object], summary_text: str) -> None:
                 f"{_SUMMARY_NAME} says {actual!r}"
             )
 
+    # The writer emits the Findings line unconditionally, so its absence is
+    # tampering, not an optional layout.
     counts = _scope_values(summary_text, "Findings")
-    if len(counts) > 1:
+    if len(counts) != 1:
         raise GateInputError(
-            f"{_SUMMARY_NAME}: expected at most one 'Findings' scope line, found {len(counts)}"
+            f"{_SUMMARY_NAME}: expected exactly one 'Findings' scope line, found {len(counts)}"
         )
-    if counts:
-        findings = document["findings"]
-        assert isinstance(findings, list)
-        blocked = sum(item.get("status") == "BLOCKED" for item in findings)
-        not_ready = sum(item.get("status") == "NOT_READY" for item in findings)
-        repeats = sum(item.get("repeat") == "true" for item in findings)
-        expected = (
-            f"{len(findings)} total; {blocked} blocked; {not_ready} not ready; {repeats} repeats."
+    findings = document["findings"]
+    assert isinstance(findings, list)
+    blocked = sum(item.get("status") == "BLOCKED" for item in findings)
+    not_ready = sum(item.get("status") == "NOT_READY" for item in findings)
+    repeats = sum(item.get("repeat") == "true" for item in findings)
+    expected = (
+        f"{len(findings)} total; {blocked} blocked; {not_ready} not ready; {repeats} repeats."
+    )
+    if counts[0] != expected:
+        raise GateInputError(
+            f"finding counts disagree: {_JSON_NAME} says {expected!r}, "
+            f"{_SUMMARY_NAME} says {counts[0]!r}"
         )
-        if counts[0] != expected:
-            raise GateInputError(
-                f"finding counts disagree: {_JSON_NAME} says {expected!r}, "
-                f"{_SUMMARY_NAME} says {counts[0]!r}"
-            )
 
 
 def _verify_cross_file_agreement(
