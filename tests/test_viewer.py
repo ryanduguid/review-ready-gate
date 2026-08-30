@@ -252,6 +252,21 @@ def test_rewritten_summary_scope_line_fails_closed(
         render_review_sheet(not_ready_pack)
 
 
+def test_deleted_findings_scope_line_fails_closed(not_ready_pack: Path) -> None:
+    # The writer always emits the Findings line; a summary without it is
+    # tampered, not a layout variant.
+    summary = not_ready_pack / "readiness-summary.md"
+    lines = [
+        line
+        for line in summary.read_text(encoding="utf-8").splitlines(keepends=True)
+        if not line.startswith("- Findings: ")
+    ]
+    summary.write_text("".join(lines), encoding="utf-8")
+
+    with pytest.raises(GateInputError, match="exactly one 'Findings' scope line"):
+        render_review_sheet(not_ready_pack)
+
+
 def test_dropped_csv_row_fails_closed(pack_dir: Path) -> None:
     csv_path = pack_dir / "findings.csv"
     lines = csv_path.read_text(encoding="utf-8-sig").splitlines(keepends=True)
