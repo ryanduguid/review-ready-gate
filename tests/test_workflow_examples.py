@@ -48,7 +48,7 @@ def test_release_guidance_is_repo_specific_and_durable() -> None:
     assert f"repos/ryanduguid/{REPOSITORY_NAME}/immutable-releases" in text
     assert "Workflow filename | `release.yml`" in text
     assert "Environment name | `pypi`" in text
-    assert "review_ready_gate-0.1.2-py3-none-any.whl" in text
+    assert 'wheel="review_ready_gate-${tag#v}-py3-none-any.whl"' in text
     assert "intend to publish." in text
     assert "This release uses version `0.1.2`." in normalised
     assert "published `v0.1.1` recovery" in normalised
@@ -106,7 +106,7 @@ def test_project_identity_preserves_package_and_command_compatibility() -> None:
     assert metadata["project"]["urls"]["Repository"] == f"{REPOSITORY_URL}.git"
 
 
-def test_release_attestation_commands_identify_the_signing_repository() -> None:
+def test_release_attestation_commands_bind_the_exact_signing_identity() -> None:
     text = (ROOT / "RELEASING.md").read_text(encoding="utf-8")
     attestation_commands = []
     for bash_block in text.split("```bash")[1:]:
@@ -124,8 +124,17 @@ def test_release_attestation_commands_identify_the_signing_repository() -> None:
 
     assert len(attestation_commands) == 2
     for command in attestation_commands:
-        assert command.count("--signer-repo ryanduguid/release-policy") == 1
-        assert command.count(f"-R ryanduguid/{REPOSITORY_NAME}") == 1
+        assert "--signer-repo" not in command
+        assert command.count('-R "$repo"') == 1
+        assert command.count('--source-digest "$release_commit"') == 1
+        assert command.count('--source-ref "refs/tags/$tag"') == 1
+        assert command.count(
+            "--signer-workflow "
+            "ryanduguid/release-policy/.github/workflows/release-python.yml"
+        ) == 1
+        assert command.count(
+            "--signer-digest 8b4de1ed339f1358b5f3e850b63412d8717d01da"
+        ) == 1
 
     predicate_counts = [
         command.count("--predicate-type https://spdx.dev/Document/v2.3")
