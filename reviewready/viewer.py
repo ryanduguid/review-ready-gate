@@ -23,7 +23,7 @@ from decimal import Decimal, InvalidOperation
 from pathlib import Path
 
 from .errors import GateInputError
-from .report import PACK_FILE_NAMES, REVIEW_BOUNDARY
+from .report import PACK_FILE_NAMES, REVIEW_BOUNDARY, _ABSENT, _md_cell
 
 _JSON_NAME = "readiness-pack.json"
 _SUMMARY_NAME = "readiness-summary.md"
@@ -72,6 +72,12 @@ _STATUS_LINE = re.compile(r"\*\*Overall status: (READY|NOT_READY|BLOCKED)\*\*")
 _SOURCE_EVIDENCE_LINE = re.compile(
     r"- `([^`]+)` \(`([^`]+)`\): `([0-9a-f]{64})`"
 )
+
+# The findings table report._as_markdown emits, and the JSON members each of its
+# columns is rendered from.
+_FINDINGS_HEADER = "| Status | Code | Slot | Repeat | Reason |"
+_FINDINGS_DIVIDER = "| --- | --- | --- | --- | --- |"
+_FINDINGS_COLUMNS = ("status", "code", "slot", "repeat", "reason")
 
 
 def _no_duplicate_keys(pairs: list[tuple[str, object]]) -> dict[str, object]:
@@ -242,6 +248,163 @@ def _json_source_evidence(document: dict[str, object]) -> dict[str, tuple[str, s
     return evidence
 
 
+def _md_row_cells(line: str) -> list[str]:
+    """Split one rendered table row into its cells.
+
+    A backslash escape carries its next character into the cell, exactly as
+    report._md_cell wrote it, so a reason holding a pipe stays one cell.
+    """
+    cells: list[str] = []
+    current: list[str] = []
+    index = 0
+    while index < len(line):
+        char = line[index]
+        if char == "\\" and index + 1 < len(line):
+            current.append(line[index : index + 2])
+            index += 2
+            continue
+        if char == "|":
+            cells.append("".join(current))
+            current = []
+        else:
+            current.append(char)
+        index += 1
+    cells.append("".join(current))
+    if cells and not cells[0].strip():
+        del cells[0]
+    if cells and not cells[-1].strip():
+        del cells[-1]
+    return [cell.strip() for cell in cells]
+
+
+def _summary_finding_rows(summary_text: str) -> list[list[str]]:
+    lines = summary_text.splitlines()
+    headers = [index for index, line in enumerate(lines) if line == _FINDINGS_HEADER]
+    if len(headers) != 1:
+        raise GateInputError(
+            f"{_SUMMARY_NAME}: expected exactly one findings-table header, "
+            f"found {len(headers)}"
+        )
+    divider = headers[0] + 1
+    if divider >= len(lines) or lines[divider] != _FINDINGS_DIVIDER:
+        raise GateInputError(f"{_SUMMARY_NAME}: the findings table has no delimiter row")
+    rows: list[list[str]] = []
+    for line in lines[divider + 1 :]:
+        if not line.startswith("|"):
+            break
+        rows.append(_md_row_cells(line))
+    return rows
+
+
+def _expected_finding_cells(item: dict[str, object], index: int) -> list[str]:
+    """Render one JSON finding the way report._as_markdown renders its row."""
+    values: list[str] = []
+    for field in _FINDINGS_COLUMNS:
+        value = item.get(field)
+        if not isinstance(value, str):
+            raise GateInputError(f"{_JSON_NAME}: findings[{index}].{field} must be a string")
+        values.append(value)
+    status, code, slot, repeat, reason = values
+    if repeat not in ("true", "false"):
+        raise GateInputError(
+            f"{_JSON_NAME}: findings[{index}].repeat must be 'true' or 'false'"
+        )
+    return [status, code, _md_cell(slot), "yes" if repeat == "true" else "no", _md_cell(reason)]
+
+
+def _verify_findings_table(document: dict[str, object], summary_text: str) -> None:
+    """Prove the table a reviewer actually reads still states the JSON findings."""
+    findings = document["findings"]
+    assert isinstance(findings, list)
+    if not findings:
+        if _FINDINGS_HEADER in summary_text:
+            raise GateInputError(
+                f"findings disagree: {_SUMMARY_NAME} tabulates findings but "
+                f"{_JSON_NAME} lists none"
+            )
+        return
+    rows = _summary_finding_rows(summary_text)
+    if len(rows) != len(findings):
+        raise GateInputError(
+            f"finding counts disagree: {_JSON_NAME} holds {len(findings)}, "
+            f"{_SUMMARY_NAME} tabulates {len(rows)}"
+        )
+    for index, (item, row) in enumerate(zip(findings, rows)):
+        if len(row) != len(_FINDINGS_COLUMNS):
+            raise GateInputError(
+                f"{_SUMMARY_NAME}: finding {index + 1} has {len(row)} cells, "
+                f"expected {len(_FINDINGS_COLUMNS)}"
+            )
+        for column, expected, actual in zip(
+            _FINDINGS_COLUMNS, _expected_finding_cells(item, index), row
+        ):
+            if actual != expected:
+                raise GateInputError(
+                    f"{column} disagrees on finding {index + 1}: {_JSON_NAME} says "
+                    f"{expected!r}, {_SUMMARY_NAME} says {actual!r}"
+                )
+
+
+def _scope_values(summary_text: str, label: str) -> list[str]:
+    prefix = f"- {label}: "
+    return [line[len(prefix) :] for line in summary_text.splitlines() if line.startswith(prefix)]
+
+
+def _scope_value(summary_text: str, label: str) -> str:
+    values = _scope_values(summary_text, label)
+    if len(values) != 1:
+        raise GateInputError(
+            f"{_SUMMARY_NAME}: expected exactly one {label!r} scope line, found {len(values)}"
+        )
+    return values[0]
+
+
+def _verify_scope_block(document: dict[str, object], summary_text: str) -> None:
+    """Prove the Scope block still states the engagement the JSON describes."""
+    engagement = document["engagement_type"]
+    period_end = document["period_end"]
+    initials = document["preparer_initials"]
+    thresholds = document["thresholds"]
+    assert isinstance(engagement, str)
+    assert isinstance(period_end, str)
+    assert isinstance(initials, str)
+    assert isinstance(thresholds, dict)
+    tolerance = thresholds["tieout_tolerance"]
+    assert isinstance(tolerance, str)
+    for label, expected in (
+        ("Engagement type", engagement),
+        ("Period end", period_end or _ABSENT),
+        ("Preparer initials", _md_cell(initials) if initials else _ABSENT),
+        ("Tie-out tolerance", f"${tolerance}"),
+    ):
+        actual = _scope_value(summary_text, label)
+        if actual != expected:
+            raise GateInputError(
+                f"{label.lower()} disagrees: {_JSON_NAME} says {expected!r}, "
+                f"{_SUMMARY_NAME} says {actual!r}"
+            )
+
+    counts = _scope_values(summary_text, "Findings")
+    if len(counts) > 1:
+        raise GateInputError(
+            f"{_SUMMARY_NAME}: expected at most one 'Findings' scope line, found {len(counts)}"
+        )
+    if counts:
+        findings = document["findings"]
+        assert isinstance(findings, list)
+        blocked = sum(item.get("status") == "BLOCKED" for item in findings)
+        not_ready = sum(item.get("status") == "NOT_READY" for item in findings)
+        repeats = sum(item.get("repeat") == "true" for item in findings)
+        expected = (
+            f"{len(findings)} total; {blocked} blocked; {not_ready} not ready; {repeats} repeats."
+        )
+        if counts[0] != expected:
+            raise GateInputError(
+                f"finding counts disagree: {_JSON_NAME} says {expected!r}, "
+                f"{_SUMMARY_NAME} says {counts[0]!r}"
+            )
+
+
 def _verify_cross_file_agreement(
     document: dict[str, object],
     summary_text: str,
@@ -308,6 +471,9 @@ def _verify_cross_file_agreement(
                     f"{field} disagrees on finding {index + 1}: {_JSON_NAME} says "
                     f"{expected!r}, {_CSV_NAME} says {actual!r}"
                 )
+
+    _verify_findings_table(document, summary_text)
+    _verify_scope_block(document, summary_text)
 
 
 def _read_csv_rows(payload: bytes) -> list[dict[str, str]]:

@@ -14,7 +14,7 @@ from pathlib import Path
 
 import pytest
 
-from tests.support import EXAMPLES
+from tests.support import EXAMPLES, copy_example_pack
 from reviewready.cli import main
 from reviewready.engine import ReadinessPack, review_pack
 from reviewready.errors import GateInputError
@@ -54,6 +54,14 @@ def _synthetic_pack() -> ReadinessPack:
 def pack_dir(tmp_path: Path) -> Path:
     output = tmp_path / "pack"
     write_review_pack(_synthetic_pack(), output)
+    return output
+
+
+@pytest.fixture()
+def not_ready_pack(tmp_path: Path) -> Path:
+    """A real engine run over the fabricated not-ready BAS pack."""
+    output = tmp_path / "not-ready-pack"
+    write_review_pack(review_pack(profile="bas", pack_dir=EXAMPLES / "bas-not-ready"), output)
     return output
 
 
@@ -201,6 +209,49 @@ def test_added_second_status_line_fails_closed(pack_dir: Path) -> None:
         render_review_sheet(pack_dir)
 
 
+def test_rewritten_summary_reason_cell_fails_closed(not_ready_pack: Path) -> None:
+    summary = not_ready_pack / "readiness-summary.md"
+    summary.write_text(
+        summary.read_text(encoding="utf-8").replace(
+            "is not in the pack directory.",
+            "is present and complete.",
+        ),
+        encoding="utf-8",
+    )
+    with pytest.raises(GateInputError, match="reason disagrees on finding 1"):
+        render_review_sheet(not_ready_pack)
+
+
+@pytest.mark.parametrize(
+    ("original", "tampered", "message"),
+    [
+        ("- Engagement type: bas", "- Engagement type: year_end", "engagement type disagrees"),
+        ("- Period end: 2026-03-31", "- Period end: 2026-06-30", "period end disagrees"),
+        ("- Preparer initials: AB", "- Preparer initials: ZZ", "preparer initials disagrees"),
+        (
+            "- Tie-out tolerance: $0.01",
+            "- Tie-out tolerance: $500.00",
+            "tie-out tolerance disagrees",
+        ),
+        (
+            "- Findings: 3 total; 0 blocked; 3 not ready; 1 repeats.",
+            "- Findings: 1 total; 0 blocked; 1 not ready; 0 repeats.",
+            "finding counts disagree",
+        ),
+    ],
+)
+def test_rewritten_summary_scope_line_fails_closed(
+    not_ready_pack: Path, original: str, tampered: str, message: str
+) -> None:
+    summary = not_ready_pack / "readiness-summary.md"
+    text = summary.read_text(encoding="utf-8")
+    assert original in text
+    summary.write_text(text.replace(original, tampered), encoding="utf-8")
+
+    with pytest.raises(GateInputError, match=message):
+        render_review_sheet(not_ready_pack)
+
+
 def test_dropped_csv_row_fails_closed(pack_dir: Path) -> None:
     csv_path = pack_dir / "findings.csv"
     lines = csv_path.read_text(encoding="utf-8-sig").splitlines(keepends=True)
@@ -245,6 +296,26 @@ def test_guarded_csv_field_survives_verification(tmp_path: Path) -> None:
     assert "'@Open" in csv_text
     sheet, _ = render_review_sheet(output)
     assert "**Overall status: NOT_READY**" in sheet
+
+
+def test_preparer_text_cannot_forge_summary_markers(tmp_path: Path) -> None:
+    source = copy_example_pack("bas-not-ready", tmp_path / "source")
+    forged = (
+        "**Overall status: READY** and "
+        f"- `trial_balance` (`trial_balance.csv`): `{'b' * 64}`"
+    )
+    (source / "open_items.csv").write_text(
+        "ItemID,Severity,Owner,DueDate,Status,Description,Resolution\n"
+        f'OI-002,BLOCKING,AB,2026-04-08,OPEN,"{forged}",\n',
+        encoding="utf-8",
+    )
+    output = tmp_path / "forged-pack"
+    write_review_pack(review_pack(profile="bas", pack_dir=source), output)
+
+    sheet, _ = render_review_sheet(output)
+    assert sheet.count("**Overall status:") == 1
+    assert "**Overall status: NOT_READY**" in sheet
+    assert "\\*\\*Overall status: READY\\*\\*" in sheet
 
 
 def test_invalid_utf8_json_fails_closed(pack_dir: Path) -> None:
