@@ -21,6 +21,7 @@ from reviewready.loader import (
     load_open_items,
     load_reviewer_acknowledgement,
     load_self_review,
+    parse_iso_date,
     parse_money,
 )
 
@@ -60,6 +61,12 @@ def test_amount_parser_keeps_every_supplied_digit(value: str) -> None:
     assert isinstance(parsed, Decimal)
     assert parsed == Decimal(value)
     assert str(parsed) == value
+
+
+@pytest.mark.parametrize("value", ["20260405", "2026-W14-2"])
+def test_date_parser_rejects_forms_only_some_interpreters_accept(value: str) -> None:
+    with pytest.raises(SchemaError, match="must be an ISO date"):
+        parse_iso_date(value, field="ReportDate", path=Path("input.csv"), row_number=2)
 
 
 def test_empty_report_date_is_reported_as_empty_not_invalid_iso(tmp_path: Path) -> None:
