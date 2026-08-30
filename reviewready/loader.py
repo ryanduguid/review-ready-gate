@@ -72,6 +72,7 @@ OPEN_ITEM_SEVERITIES = {"BLOCKING", "EXPLAIN", "TRIVIAL"}
 OPEN_ITEM_STATUSES = {"OPEN", "CLEARED"}
 TIE_OUT_STATUSES = {"TIED", "EXCEPTION", "UNSUPPORTED"}
 _ACCOUNTING_NUMBER = re.compile(r"^[-+]?\$?(?:\d{1,3}(?:,\d{3})*|\d+)(?:\.\d+)?$")
+_EXTENDED_ISO_DATE = re.compile(r"\d{4}-\d{2}-\d{2}")
 
 
 @dataclass(frozen=True, slots=True)
@@ -177,6 +178,11 @@ def parse_money(value: str | None, *, field: str, row_number: int, path: Path) -
 
 def parse_iso_date(value: str, *, field: str, path: Path, row_number: int | None = None) -> date:
     try:
+        # date.fromisoformat also accepts basic-format and ISO-week strings from
+        # 3.11 on. Insist on the extended calendar date schemas/self_review.json
+        # declares, so the same pack gates identically on every supported version.
+        if not _EXTENDED_ISO_DATE.fullmatch(value):
+            raise ValueError(f"{value!r} is not an extended-format ISO date")
         return date.fromisoformat(value)
     except ValueError as exc:
         where = f" row {row_number}" if row_number is not None else ""

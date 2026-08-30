@@ -38,7 +38,16 @@ def _csv_safe(value: str) -> str:
 
 
 def _md_cell(value: str) -> str:
-    return " ".join(value.split()).replace("\\", "\\\\").replace("|", "\\|")
+    # Backslash first, or the escapes below would be escaped again. Asterisk and
+    # backtick are structural in the summary the viewer verifies: without them a
+    # preparer-supplied cell can forge a status line or an evidence digest line.
+    return (
+        " ".join(value.split())
+        .replace("\\", "\\\\")
+        .replace("|", "\\|")
+        .replace("*", "\\*")
+        .replace("`", "\\`")
+    )
 
 
 def _md_note_lines(comment: str) -> list[str]:
