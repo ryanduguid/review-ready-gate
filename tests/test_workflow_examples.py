@@ -13,7 +13,7 @@ WORKFLOW = EXAMPLES / "github-actions-readiness-check.yml"
 REPOSITORY_NAME = "workpaper-review-gate"
 PACKAGE_NAME = "review-ready-gate"
 REPOSITORY_URL = f"https://github.com/ryanduguid/{REPOSITORY_NAME}"
-HOMEPAGE_URL = "https://ryanduguid.github.io/tools/workpaper-review-gate/"
+HOMEPAGE_URL = "https://duguid.com.au/tools/workpaper-review-gate/"
 
 EXPECTED_PINS = (
     "actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1",

@@ -18,7 +18,7 @@
 [![Python 3.10+](https://img.shields.io/badge/python-3.10%2B-5C2D91.svg?logo=python&logoColor=white&labelColor=04001F)](https://www.python.org/downloads/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-4F485E.svg?labelColor=04001F)](LICENSE)
 
-[Browser evaluation](https://ryanduguid.github.io/evaluate/manager-review-gate/) · [Reproduce locally](evaluation/manager_review_gate/README.md) · [Quick demo](#quick-demo) · [Release notes](RELEASE_NOTES.md)
+[Browser evaluation](https://duguid.com.au/evaluate/manager-review-gate/) · [Reproduce locally](evaluation/manager_review_gate/README.md) · [Quick demo](#quick-demo) · [Release notes](RELEASE_NOTES.md)
 
 The repository is Workpaper Review Gate (`workpaper-review-gate`); the `review-ready-gate` distribution, `review-ready` command and `reviewready` import remain compatibility identifiers.
 
@@ -33,7 +33,7 @@ A public evaluation pack reproduces the v0.1.1 manager-review result on fabricat
 | `examples/bas-ready` | `READY` | No configured findings. A human still decides whether the pack may proceed. |
 | `examples/bas-not-ready` | `NOT_READY` | Missing GST control export, incomplete self-review and a blocking open item. |
 
-Open the [manager-facing browser evaluation](https://ryanduguid.github.io/evaluate/manager-review-gate/) or reproduce the [versioned evaluation pack](evaluation/manager_review_gate/README.md) from the fabricated fixtures.
+Open the [manager-facing browser evaluation](https://duguid.com.au/evaluate/manager-review-gate/) or reproduce the [versioned evaluation pack](evaluation/manager_review_gate/README.md) from the fabricated fixtures.
 
 It is the missing upstream step in this stack:
 
@@ -85,9 +85,9 @@ review-ready gate \
 
 The ready demo exits `0` and writes three files:
 
-- `readiness-summary.md` — cover sheet a manager reads top to bottom
-- `findings.csv` — one row per finding, for Excel or Power BI
-- `readiness-pack.json` — structured evidence, source hashes, and any supplied acknowledgement
+- `readiness-summary.md`: cover sheet a manager reads top to bottom
+- `findings.csv`: one row per finding, for Excel or Power BI
+- `readiness-pack.json`: structured evidence, source hashes, and any supplied acknowledgement
 
 ```bash
 review-ready gate \
