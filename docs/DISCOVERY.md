@@ -2,7 +2,7 @@
 
 Description: Stop incomplete workpapers reaching manager review. Deterministic readiness gate for Australian public-practice packs. Not advice.
 
-Homepage: https://ryanduguid.github.io/tools/workpaper-review-gate/
+Homepage: https://duguid.com.au/tools/workpaper-review-gate/
 
 Topics:
 
