@@ -11,7 +11,7 @@ Varrock Ventures Pty Ltd (month-end and year-end).
 | --- | --- | --- | --- |
 | `bas-ready/` | `bas` | `READY` | Complete pack: TB balances, 1A−1B ties to GST control, self-review all true, no blocking open items |
 | `bas-not-ready/` | `bas` | `NOT_READY` | Missing GST control, incomplete self-review, blocking open item, prior finding still OPEN (repeat) |
-| `bas-blocked/` | `bas` | `BLOCKED` | Unbalanced trial balance — not a review topic |
+| `bas-blocked/` | `bas` | `BLOCKED` | Unbalanced trial balance, not a review topic |
 | `month-end-ready/` | `month_end` | `READY` | Current and prior TB, same tenant, prior date earlier, bank rec within tolerance |
 | `year-end-ready/` | `year_end` | `READY` | Tie-out matrix with no `UNSUPPORTED` lines; TIED rows name workpaper and source |
 
