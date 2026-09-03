@@ -1,5 +1,15 @@
 # Workpaper Review Gate
 
+> [!IMPORTANT]
+> **Repository migration: 3 September 2026.** We moved maintained development to
+> [`packages/review-ready-gate`](https://github.com/ryanduguid/accounting-review-pipeline/tree/main/packages/review-ready-gate)
+> in Accounting Review Pipeline.
+> The first replacement release is [`v0.1.3`](https://github.com/ryanduguid/accounting-review-pipeline/releases/tag/review-ready-gate/v0.1.3).
+>
+> Keep this repository's [`v0.1.1`](https://github.com/ryanduguid/workpaper-review-gate/releases/tag/v0.1.1)
+> as the rollback release until the fourteen-day observation window closes on
+> 17 September 2026. Open new issues and pull requests in Accounting Review Pipeline.
+
 ```
 +----------------------------------------------------------------------+
 |                        Workpaper Review Gate                         |
